@@ -81,8 +81,6 @@ Please follow these steps closely to allow SSH authentication on OSCER:
     \end{itemize}
     \item it should tell you ``Your identification has been saved in ghDS26'' and ``Your public key has been saved in ghDS26.pub'' and then print out some other stuff about a fingerprint and randomart image.
     \item type \texttt{cd \~}
-    \item type \texttt{eval "\$(ssh-agent -s)"}
-    \item type \texttt{ssh-add \~/.ssh/ghDS26}
     \item in a web browser, visit \url{https://github.com/settings/keys} and click "new SSH key". Name it "OSCER"
     \item Copy the contents of your \texttt{ghDS26.pub} file and paste it into the key box. You can do this in a couple of ways:
     \begin{itemize}
@@ -91,8 +89,8 @@ Please follow these steps closely to allow SSH authentication on OSCER:
         \texttt{mail -s "public key" email@address.com < \~/.ssh/ghDS26.pub}
         Then copy/paste it into the box on the GitHub SSH key webpage
     \end{itemize}
-    \item Before proceeding to the next question, you may need to skip below to question \#9 (part 3) of this problem set and add the ssh key initialization to your bash profile file.
 \end{enumerate}
+    \textbf{Note:} Before proceeding to questions 3 or 4 (which involve git operations), complete question 9 to set up the ssh-agent in your .bash\_profile file.
     If all of that was too much for you, you can also check out this YouTube video for a walkthrough: \url{https://www.youtube.com/watch?v=s6KTbytdNgs}
 \question If you have already cloned your forked GitHub repository to your home directory on OSCER, you will need to adjust the URL for the remote by following these steps:
 \begin{enumerate}
@@ -122,13 +120,24 @@ Please follow these steps closely to allow SSH authentication on OSCER:
 Once you have done this, issue a \texttt{git pull} from the location of your other local git repository (e.g. on RStudio on your personal computer). Verify that the PS2 directory appears in the appropriate place in your other local repository.
 \question Make sure that you have R version 4.0.2 (or higher) installed on OSCER. To do this, take the following steps:
 \begin{enumerate}
-    \item At the command prompt, type \texttt{nano \textasciitilde/.bash\_profile} and press enter. 
-    \item Type \texttt{module load R/4.0.2-foss-2020a} somewhere in the middle of that file. 
-    \item At the bottom of the file, type the following:
-        \begin{itemize}
-        \item type \texttt{eval "\$(ssh-agent -s)"}
-        \item type \texttt{ssh-add \~/.ssh/ghDS26}
-        \end{itemize}
+    \item At the command prompt, type \texttt{nano \textasciitilde/.bash\_profile} and press enter.
+    \item Type \texttt{module load R/4.0.2-foss-2020a} somewhere in the middle of that file.
+    \item At the bottom of the file, add the following improved ssh-agent configuration (this prevents starting multiple ssh-agent processes):
+        \begin{verbatim}
+# https://rabexc.org/posts/pitfalls-of-ssh-agents
+ssh-add -l &>/dev/null
+if [ "$?" == 2 ]; then                      # Check connection to ssh-agent
+  test -r ~/.ssh-agent && \
+    eval "$(<~/.ssh-agent)" >/dev/null      # If no connection, source saved env variables
+
+  ssh-add -l &>/dev/null
+  if [ "$?" == 2 ]; then                    # Check connection to ssh-agent again
+    (umask 066; ssh-agent > ~/.ssh-agent)   # No agent running; start one
+    eval "$(<~/.ssh-agent)" >/dev/null      # Source new env variables
+    ssh-add ~/.ssh/ghDS26                   # Add private keys
+  fi
+fi
+        \end{verbatim}
     \item Then push Control+X and then type ``yes'' (or ``y'') when it asks if you want to modify the file.
 \end{enumerate}
 \question Now open R (on OSCER), verify that it is running the version mentioned above, and install the \texttt{xml2} package by typing \texttt{install.packages('xml2')} at the command prompt. (\textbf{NOTE: The package is ``X-M-L 2,'' NOT ``X-M 12''}) Answer `yes' to install it in your home directory. Enter the number of any of the server mirrors that come up (I usually choose Texas). Building the package may take a couple of minutes. Once that has finished, repeat the process, but substitute \texttt{tidyverse} for \texttt{xml2}. Building \texttt{tidyverse} may take as much as 10-15 minutes. You don't need to watch it build, but be sure not to close your SSH terminal window or otherwise disconnect your session. When you are done with the build, exit R and log off of OSCER. You can always exit a program (or logout) on OSCER by typing Control+D.
