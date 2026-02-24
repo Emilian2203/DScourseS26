@@ -1,0 +1,20 @@
+\documentclass{article}
+\title{Problem Set 4}
+\author{Emilian Zavala}
+
+\begin{document}
+\maketitle
+
+\section{Data Sources of Interest}
+
+One data source I would be interested in scraping is baseball statistics data. Baseball is one of the most statistically rich sports in the world, and there is a wealth of freely available data on the internet. For example, websites such as Baseball Reference and FanGraphs provide detailed statistics on player performance, team performance, and historical data going back over a century. This data could be used to analyze player performance trends, compare players across different eras, or build predictive models for future performance.
+
+\section{Question 5 Results}
+
+\subsection{Part (d): Object Types}
+The \texttt{class(mydf)} function returned \texttt{"matrix"}, meaning the dataframe is stored as a matrix object in R. The \texttt{class(mydf\$date)} function returned \texttt{"NULL"}, which is because in a matrix object, columns cannot be accessed with the \texttt{\$} operator like in a data frame.
+
+\subsection{Part (e): First Rows of Data}
+The \texttt{head(mydf)} command returned the first several rows of the dataset. The data contains columns for \texttt{date}, \texttt{description}, \texttt{lang}, \texttt{category1}, \texttt{category2}, and \texttt{granularity}. The first few events are from the Roman Empire era, categorized by place with a granularity of year. For example, one entry describes Tiberius quelling revolts in Germania, and another records Gaius Caesar and Lucius Aemilius Paullus being appointed consuls.
+
+\end{document}
