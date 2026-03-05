@@ -26,3 +26,21 @@ from the webpage.
 
 \end{document}
 
+
+\section*{API Data: MLB 2024 Home Run Leaders}
+
+For this section, I used the MLB Stats API (statsapi.mlb.com) to retrieve 
+the 2024 MLB home run leaders. The API is free and requires no API key, 
+making it very accessible. I pulled the top 20 home run leaders for the 
+2024 season.
+
+The data shows Aaron Judge of the New York Yankees leading with 58 home runs, 
+followed by Shohei Ohtani of the Los Angeles Dodgers with 54. It is 
+interesting to see how dominant these two players were compared to the rest 
+of the league.
+
+This data could be useful for analyzing power hitting trends across teams 
+and leagues. I used the \texttt{rjson} package in R to call the API and 
+parse the JSON response into a data frame.
+
+\end{document}
