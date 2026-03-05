@@ -1,0 +1,28 @@
+
+\documentclass{article}
+\begin{document}
+
+\title{Problem Set 5}
+\author{Zavala}
+\date{}
+\maketitle
+
+\section*{Web Scraping: MLB 2024 Standings}
+
+For this problem set, I scraped data from Baseball Reference 
+(https://www.baseball-reference.com/leagues/majors/2024-standings.shtml), 
+which contains the 2024 MLB team standings. The data includes each team's 
+wins, losses, win-loss percentage, and games behind the division leader.
+
+This data interests me because baseball statistics are a classic example 
+of structured, publicly available sports data. It could be useful in the 
+future for analyzing team performance trends, building predictive models 
+for playoff outcomes, or comparing team performance across seasons.
+
+I did not use any online tutorials to scrape this data. I used the 
+\texttt{rvest} package in R along with the \texttt{html\_nodes()} and 
+\texttt{html\_table()} functions to extract the standings table directly 
+from the webpage.
+
+\end{document}
+
