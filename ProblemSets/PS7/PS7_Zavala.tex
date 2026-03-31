@@ -1,0 +1,85 @@
+\documentclass{article}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{dcolumn}
+
+\title{PS7\_Zavala}
+\author{Emilian Zavala}
+\date{March 31st 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Step 6}
+Below is a summary table of the wages data frame. Approximately 25\% of \texttt{logwage} observations are missing. This is most likely MNAR (Missing Not At Random), as women with lower wages may be less likely to report them.
+
+\begin{table}[!htbp] \centering
+  \caption{}
+  \label{tab:summary}
+\begin{tabular}{@{\extracolsep{5pt}}lccccc}
+\\[-1.8ex]\hline
+\hline \\[-1.8ex]
+Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\
+\hline \\[-1.8ex]
+logwage & 1,669 & 1.625 & 0.386 & 0.005 & 2.261 \\
+hgc & 2,229 & 13.101 & 2.524 & 0 & 18 \\
+tenure & 2,229 & 5.971 & 5.507 & 0.000 & 25.917 \\
+age & 2,229 & 39.152 & 3.062 & 34 & 46 \\
+\hline \\[-1.8ex]
+\end{tabular}
+\end{table}
+
+\section*{Step 7}
+Below are the results of four imputation methods. The true value of $\hat{\beta}_1 = 0.093$.
+
+\begin{table}[!htbp] \centering
+\small
+  \caption{}
+  \label{tab:regression}
+\begin{tabular}{@{\extracolsep{5pt}}lccc}
+\\[-1.8ex]\hline
+\hline \\[-1.8ex]
+ & \multicolumn{3}{c}{\textit{Dependent variable:}} \\
+\cline{2-4}
+\\[-1.8ex] & logwage & logwage\_mean & logwage\_pred \\
+\\[-1.8ex] & (1) & (2) & (3)\\
+\hline \\[-1.8ex]
+ hgc & 0.062$^{***}$ & 0.050$^{***}$ & 0.062$^{***}$ \\
+  & (0.005) & (0.004) & (0.004) \\
+  & & & \\
+ collegenot college grad & 0.145$^{***}$ & 0.168$^{***}$ & 0.145$^{***}$ \\
+  & (0.034) & (0.026) & (0.025) \\
+  & & & \\
+ tenure & 0.050$^{***}$ & 0.038$^{***}$ & 0.050$^{***}$ \\
+  & (0.005) & (0.004) & (0.004) \\
+  & & & \\
+ I(tenure$\hat{\mkern6mu}$2) & $-$0.002$^{***}$ & $-$0.001$^{***}$ & $-$0.002$^{***}$ \\
+  & (0.0003) & (0.0002) & (0.0002) \\
+  & & & \\
+ age & 0.0004 & 0.0002 & 0.0004 \\
+  & (0.003) & (0.002) & (0.002) \\
+  & & & \\
+ marriedsingle & $-$0.022 & $-$0.027$^{**}$ & $-$0.022$^{*}$ \\
+  & (0.018) & (0.014) & (0.013) \\
+  & & & \\
+ Constant & 0.534$^{***}$ & 0.708$^{***}$ & 0.534$^{***}$ \\
+  & (0.146) & (0.116) & (0.112) \\
+  & & & \\
+\hline \\[-1.8ex]
+Observations & 1,669 & 2,229 & 2,229 \\
+R$^{2}$ & 0.208 & 0.147 & 0.277 \\
+Adjusted R$^{2}$ & 0.206 & 0.145 & 0.275 \\
+Residual Std. Error & 0.344 (df = 1662) & 0.308 (df = 2222) & 0.297 (df = 2222) \\
+F Statistic & 72.917$^{***}$ (df = 6; 1662) & 63.973$^{***}$ (df = 6; 2222) & 141.686$^{***}$ (df =
+6; 2222) \\
+\hline
+\hline \\[-1.8ex]
+\textit{Note:}  & \multicolumn{3}{r}{$^{*}$p$<$0.1; $^{**}$p$<$0.05; $^{***}$p$<$0.01} \\
+\end{tabular}
+\end{table}
+
+\section*{Step 8}
+For my project, I am using a baseball dataset containing statistics from the modern era (post-1900). The dataset includes offensive and pitching statistics such as batting average, home runs, RBI, ERA, strikeouts, and WAR (Wins Above Replacement). My primary modeling approach will be a linear regression model predicting WAR from key offensive and pitching statistics, allowing me to identify which performance metrics are most strongly associated with overall player value. I may also explore  separate models for hitters and pitchers, as WAR is calculated differently for each.
+
+
+\end{document}
