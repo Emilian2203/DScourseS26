@@ -1,0 +1,37 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{PS9_Zavala}
+\author{Emilian Zavala}
+\date{April 2026}
+
+\begin{document}
+
+\section*{Question 10}
+
+\textbf{Could you estimate a simple linear regression model on a dataset that had more columns than rows?}
+
+No. Ordinary least squares (OLS) linear regression cannot be estimated when the number of predictors (columns) exceeds the number of observations (rows). This is because the matrix $(X'X)$ becomes singular and cannot be inverted, making it impossible to compute the OLS estimator $\hat{\beta} = (X'X)^{-1}X'y$. In our case, after creating polynomial terms and interaction terms in the recipe, the number of predictors far exceeds the number of observations in the training data, making OLS infeasible. Regularized methods such as LASSO and ridge regression solve this problem by adding a penalty term that shrinks coefficients, allowing estimation even in high-dimensional settings.
+
+\textbf{Comment on the bias-variance tradeoff using the RMSE values from the tuned models:}
+
+The results from the two tuned models are summarized below:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Model} & \textbf{Optimal $\lambda$} & \textbf{In-Sample RMSE} & \textbf{Out-of-Sample RMSE} \\
+\hline
+LASSO & 0.0373 & 0.199 & 0.189 \\
+Ridge & 1.000  & 0.233 & 0.216 \\
+\hline
+\end{tabular}
+\caption{Tuned model performance comparison}
+\end{table}
+
+Both models show that the out-of-sample RMSE is close to the in-sample RMSE, suggesting that neither model is severely overfitting. The LASSO model outperforms ridge regression in both in-sample and out-of-sample RMSE, indicating that LASSO's variable selection property — shrinking some coefficients to exactly zero — is beneficial here, likely because many of the polynomial and interaction terms are not useful predictors. 
+
+In terms of the bias-variance tradeoff, a larger penalty $\lambda$ increases bias but reduces variance. Ridge regression selected a larger $\lambda = 1$ compared to LASSO's $\lambda = 0.0373$, meaning ridge imposed stronger regularization. Despite this, LASSO achieved lower RMSE, suggesting that the sparsity induced by LASSO better captures the true underlying relationship in the data.
+
+\end{document}
