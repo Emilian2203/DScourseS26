@@ -1,0 +1,36 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{PS10_Zavala}
+\author{Emilian Zavala}
+\date{4/20/2026}
+
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\begin{document}
+
+\maketitle
+
+\section*{Question 9}
+
+Table \ref{tab:ml_results} reports the optimal tuning parameters and out-of-sample accuracy for each of the five machine learning algorithms. The decision tree performed the best with an accuracy of 87\%, followed by logistic regression and SVM both at 85\%. The neural network and kNN performed similarly at 84\%. Overall, the tree model appears to be the best classifier for predicting whether someone is a high earner.
+
+\begin{table}[h]
+\centering
+\caption{Machine Learning Algorithm Comparison}
+\label{tab:ml_results}
+\begin{tabular}{llc}
+\hline
+\textbf{Algorithm} & \textbf{Best Tuning Parameters} & \textbf{Out-of-Sample Accuracy} \\
+\hline
+Logistic Regression & $\lambda = 0.00$ & 0.85 \\
+Decision Tree & cost\_complexity $= 0.00$, tree\_depth $= 20$, min\_n $= 15$ & 0.87 \\
+Neural Network & hidden\_units $= 1$, penalty $= 4.00$ & 0.84 \\
+kNN & neighbors $= 30$ & 0.84 \\
+SVM & cost $= 1.00$, rbf\_sigma $= 0.25$ & 0.85 \\
+\hline
+\end{tabular}
+\end{table}
+
+\end{document}
