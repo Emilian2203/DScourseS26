@@ -11,10 +11,11 @@ ggplot(data = mpg, aes(x = cty, y = hwy), geom_point()) # this won't work becaus
 ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_point()
 ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter()
 ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter() + theme_bw() # if you don't want a gray theme
-ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter() + theme_minimal()
+ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter() + theme_minimal() + ylim(0,50) + xlim(0,50)
+
 
 # save
-ggsave("badgraph.png")
+ggsave("badgraph.png", height = 15, width = 15)
 
 # Visualizing additional dimensions through size of dots, colors of dots, labels
 ggplot(data = mpg, aes(x = cty, y = hwy, size=as.factor(manufacturer))) + geom_jitter() + theme_minimal()
@@ -54,3 +55,4 @@ ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter() + theme_economist_whit
 ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter() + theme_fivethirtyeight() + facet_wrap(vars(as.factor(year)), ncol = 4)
 ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter() + theme_tufte() + facet_wrap(vars(as.factor(year)), ncol = 4)
 ggplot(data = mpg, aes(x = cty, y = hwy)) + geom_jitter() + geom_rangeframe() + theme_tufte() + facet_wrap(vars(as.factor(year)), ncol = 4)
+
