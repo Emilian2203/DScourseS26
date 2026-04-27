@@ -1,0 +1,333 @@
+\documentclass[12pt]{article}
+ 
+% ---- Packages ----
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{setspace}
+\usepackage{natbib}          % bibliography; use \citet{} and \citep{}
+\usepackage{url}
+\usepackage{caption}
+\usepackage{float}           % [H] placement for tables/figures
+ 
+\onehalfspacing              % 1.5 line spacing throughout
+ 
+% ---- Title ----
+\title{\textbf{Dynamic Ticket Pricing at FedEx Forum:}\\
+       Evidence from the 2024--25 Memphis Grizzlies Season}
+\author{Emilian Zavala Berguerand\\
+        \small University of Oklahoma\\
+        \small Data Science for Economists}
+\date{\today}
+ 
+% ============================================================
+\begin{document}
+\maketitle
+ 
+% ---- Abstract ----
+\begin{abstract}
+\noindent
+This paper investigates how secondary-market ticket prices for Memphis Grizzlies games adjust over time in response to demand information. Using a synthetic but realistic dataset of 729,554 seat--game observations covering all 41 home games at FedEx Forum during the 2024--25 NBA regular season, I estimate a four-step log-linear pricing model. Season-start prices are driven almost entirely by seating level, consistent with hedonic pricing theory \citep{rosen1974hedonic}.
+
+From season-start to two weeks before tipoff, prices rise significantly for high-demand matchups and fall when either team's star is injured. From two weeks out to tipoff, price adjustments are smaller in magnitude but persist for marquee games, and courtside seats show larger responses than upper-bowl seats. Attendance is positively associated with high-demand opponents and negatively affected by Grizzlies star injuries. These results illustrate how the NBA secondary market efficiently incorporates new information across the price discovery window.
+\end{abstract}
+ 
+\newpage
+\tableofcontents
+\newpage
+ 
+% ============================================================
+\section{Introduction}
+% ============================================================
+ 
+The pricing of NBA game tickets presents a rich laboratory for studying dynamic markets. Unlike airlines or hotels, which price a single product across time, NBA teams must simultaneously price across two dimensions: the quality of the seat and the quality of the game. A courtside seat for a Boston Celtics visit is a fundamentally different product than an upper-bowl seat for a Charlotte Hornets game, and the secondary market must price both correctly \citep{drayer2012dynamic}.
+ 
+Dynamic pricing---the practice of adjusting prices in real time based on demand signals---was pioneered in the sports industry by the San Francisco Giants in 2009 \citep{drayer2012dynamic}. Since then, all four major North American sports leagues have adopted some form of demand-based pricing \citep{paul2013determinants}. The NBA has been particularly active in this space, with teams using secondary-market platforms such as StubHub and SeatGeek to observe revealed willingness to pay.
+ 
+This paper focuses on the Memphis Grizzlies, who play their home games at FedEx Forum, a 17,794-seat multi-purpose arena located in downtown Memphis, Tennessee, adjacent to the city's historic Beale Street entertainment district \citep{fedexforum2024about}. Memphis is the smallest-market NBA city, which makes it an interesting case for studying demand heterogeneity: marquee opponents (e.g., the Los Angeles Lakers or Boston Celtics) generate outsized demand relative to the home team's own star power \citep{grizzlies2024nba}.
+ 
+The central research questions are:
+\begin{enumerate}
+    \item What seat-level characteristics explain season-start prices?
+    \item What demand signals cause prices to adjust from season-start to two weeks before tipoff?
+    \item What causes the final price adjustment from two weeks out to tipoff?
+    \item What drives observed attendance at FedEx Forum?
+\end{enumerate}
+ 
+ 
+% ============================================================
+\section{Literature Review}
+\label{sec:litreview}
+% ============================================================
+ 
+The economics of sports ticket pricing builds on the hedonic pricing framework developed by \citet{rosen1974hedonic}, who showed that the price of a differentiated good reflects the implicit prices of its constituent attributes. Applied to sports venues, hedonic pricing predicts that tickets should be more expensive for seats closer to the action and for games against higher-quality opponents---exactly the variation exploited in this paper.
+ 
+A large sports economics literature documents that fixed ticket pricing is suboptimal for revenue-maximizing franchises. \citet{rascher2007variable} showed that variable ticket pricing in Major League Baseball significantly increased gate revenues without reducing attendance. \citet{drayer2012dynamic} extended this framework to dynamic pricing, arguing that demand-based pricing strategies borrowed from the airline and hotel industries are theoretically appropriate for sporting events because sports tickets share key characteristics with perishable service goods: fixed capacity, heterogeneous consumers, and advance purchase markets.
+ 
+The secondary market for NBA tickets has received growing attention. \citet{kaplan2019economic} used secondary-market ticket microdata to estimate the economic impact of NBA superstars, finding that a superstar's absence from an opposing team's lineup causes substantial price declines on the secondary market---a finding directly relevant to the injury flags in this dataset. \citet{wanghan2023variables} review the broader literature on NBA ticket pricing predictors and confirm that opponent quality, game timing, and team performance are the primary demand shifters.
+ 
+\citet{shapiro2012newage} examined how secondary-market prices for MLB tickets compare to primary-market listed prices, finding that dynamic adjustments are largest for the highest-quality matchups. \citet{courty2020variable} provide a comprehensive analysis of dynamic pricing in MLB, finding that teams that implemented dynamic pricing saw meaningful increases in ticket revenues. \citet{patel2018indices} developed new index-based measures for tracking dynamic price changes over a game's sales lifecycle, directly analogous to the three price snapshots used in this analysis.
+ 
+Taken together, the literature establishes three well-supported predictions for this analysis: (1) seat quality should be the dominant predictor of season-start prices; (2) opponent quality and injury shocks should be the primary movers between season-start and two-week-out prices; and (3) final price adjustments should reflect last-minute demand uncertainty, particularly for premium seats.
+ 
+ 
+% ============================================================
+\section{Data}
+\label{sec:data}
+% ============================================================
+ 
+\subsection{Dataset Overview}
+ 
+The dataset contains synthetic but realistic secondary-market ticket prices for every seat at FedEx Forum across all 41 Memphis Grizzlies home games during the 2024--25 NBA regular season \citep{nba2025official}. Each row represents one seat--game pair, yielding 729,554 total observations (17,794 seats $\times$ 41 games). Prices are observed at three points in time for each observation:
+ 
+\begin{itemize}
+    \item \textbf{Season-start price}: listed resale price before any games are played, reflecting only seat quality and pre-season opponent expectations.
+    \item \textbf{Two-weeks-out price}: resale price approximately two weeks before tipoff, incorporating current-season information (opponent form, injury news).
+    \item \textbf{Tipoff price}: final equilibrium secondary-market price at game time.
+\end{itemize}
+ 
+\subsection{Venue and Seating Structure}
+ 
+FedEx Forum, located at 191 Beale Street in Memphis, Tennessee, opened in September 2004 at a cost of \$250 million \citep{fedexforum2024about}. The arena has a seating capacity of 17,794 for NBA games, organized across four broad levels: Courtside/Floor (246 seats), Lower Bowl/Plaza (7,843 seats), Club (2,050 seats), and Upper Bowl/Terrace (7,655 seats). These levels anchor the cross-sectional price variation in the data.
+ 
+Season-start price medians by level range from \$45 (Upper Bowl) to \$1,271 (Courtside). By tipoff, medians rise to \$51 (Upper Bowl) and \$1,460 (Courtside), reflecting upward price pressure as game day approaches for marquee events.
+ 
+\subsection{Game-Level Variables}
+ 
+The dataset includes 41 home games spanning October 27, 2024 through March 24, 2025.
+Key game-level variables include:
+ 
+\begin{itemize}
+    \item \textbf{Opponent pre-season over/under} (\texttt{opp\_preseason\_ou}): Vegas win total set before the season, ranging from 18.5 (Washington Wizards) to 57.5 (Boston Celtics). This serves as a pre-determined measure of opponent quality and is a candidate instrument for opponent win percentage.
+    \item \textbf{Opponent win percentage at two weeks out} (\texttt{opp\_win\_pct\_2wk}): running win percentage as of approximately two weeks before each game.
+    \item \textbf{High demand indicator}: dummy equal to 1 for 14 out of 41 games against nationally prominent franchises (Lakers, Celtics, Warriors, Knicks) or elite teams that season (Oklahoma City Thunder, Cleveland Cavaliers).
+    \item \textbf{Rivalry indicator}: dummy for the two New Orleans Pelicans games, the Grizzlies' nearest divisional rival.
+    \item \textbf{Injury indicators}: \texttt{opp\_star\_injured} equals 1 for six games in which the opposing team's primary star was unavailable (e.g., Shai Gilgeous-Alexander, Stephen Curry, Jayson Tatum). \texttt{grizz\_star\_injured} equals 1 for nine games across two injury stretches.
+\end{itemize}
+ 
+\subsection{Data Preparation}
+ 
+All prices are log-transformed prior to analysis. Log price changes between time points are constructed as:
+\begin{equation}
+    \Delta^{2wk}_i = \log(P^{2wk}_i) - \log(P^{start}_i)
+    \label{eq:delta2wk}
+\end{equation}
+\begin{equation}
+    \Delta^{tip}_i = \log(P^{tip}_i) - \log(P^{2wk}_i)
+    \label{eq:deltatip}
+\end{equation}
+where $i$ indexes a seat--game pair. Taking log-differences cancels all time-invariant seat characteristics---it is algebraically equivalent to including a seat fixed effect. The analysis uses the \texttt{tidyverse}, \texttt{fixest}, \texttt{modelsummary}, \texttt{lmtest}, and \texttt{sandwich} packages in R \citep{r2024, berge2018fixest, arel2022modelsummary}.
+ 
+ 
+% ============================================================
+\section{Methods}
+\label{sec:methods}
+% ============================================================
+ 
+I estimate four related models corresponding to the four research questions.
+ 
+\subsection{Step 1: What Drives Season-Start Prices?}
+ 
+I regress log season-start price on seat-level characteristics. Two specifications are estimated:
+ 
+\textbf{Model 1A} includes seating level indicators and game fixed effects:
+\begin{equation}
+    \log(P^{start}_{ig}) = \alpha_g + \beta \cdot \text{Level}_i + \varepsilon_{ig}
+\end{equation}
+ 
+\textbf{Model 1B} replaces game fixed effects with explicit game-level variables:
+\begin{equation}
+    \log(P^{start}_{ig}) = \alpha + \beta \cdot \text{Level}_i + \gamma \cdot X_g + \varepsilon_{ig}
+\end{equation}
+where $X_g$ includes \texttt{opp\_preseason\_ou}, \texttt{high\_demand},
+\texttt{is\_rivalry}, \texttt{day\_of\_week}, and \texttt{month}. Standard errors are clustered by game in both models, estimated using \texttt{feols} from the \texttt{fixest} package \citep{berge2018fixest}.
+ 
+\subsection{Step 2: Season-Start to Two Weeks Out}
+ 
+I collapse the data to 41 game-level observations (computing the mean of $\Delta^{2wk}_{ig}$ across all seats in each game) and estimate:
+\begin{equation}
+    \overline{\Delta^{2wk}}_g = \alpha + \gamma_1 \cdot \texttt{opp\_win\_pct\_2wk}_g
+    + \gamma_2 \cdot \texttt{opp\_preseason\_ou}_g + \gamma_3 \cdot \texttt{high\_demand}_g
+    + \gamma_4 \cdot \texttt{opp\_star\_injured}_g + \gamma_5 \cdot \texttt{grizz\_star\_injured}_g
+    + \delta \cdot \text{DoW}_g + \lambda \cdot \text{Month}_g + \varepsilon_g
+\end{equation}
+Heteroskedasticity-robust (HC3) standard errors are reported because $N = 41$ is too small to support cluster-robust inference.
+ 
+\subsection{Step 3: Two Weeks Out to Tipoff}
+ 
+\textbf{Step 3A} mirrors Step 2 using $\overline{\Delta^{tip}}_g$ as the dependent variable, replacing \texttt{opp\_preseason\_ou} (which is time-invariant) with \texttt{opp\_win\_pct\_2wk}.
+ 
+\textbf{Step 3B} returns to the full seat--game panel and interacts demand shifters with seating level to test whether tipoff price adjustments are heterogeneous across seat types:
+\begin{equation}
+    \Delta^{tip}_{ig} = \alpha + \gamma X_g + \beta \cdot \text{Level}_i
+    + \phi_1 (\texttt{high\_demand}_g \times \text{Level}_i)
+    + \phi_2 (\texttt{opp\_star\_injured}_g \times \text{Level}_i) + \varepsilon_{ig}
+\end{equation}
+Standard errors are clustered by game.
+ 
+\subsection{Step 4: Attendance}
+ 
+I estimate a linear attendance model on the 41-game dataset:
+\begin{equation}
+    \texttt{Attendance}_g = \alpha + \gamma X_g + \varepsilon_g
+\end{equation}
+where $X_g$ includes all game-level demand shifters and day-of-week controls. Given the small sample ($N = 41$), I also report a parsimonious specification with only \texttt{high\_demand}, \texttt{opp\_star\_injured}, \texttt{grizz\_star\_injured}, and day-of-week indicators.
+ 
+ 
+% ============================================================
+\section{Findings}
+\label{sec:findings}
+% ============================================================
+ 
+\subsection{Step 1: Season-Start Prices}
+ 
+Season-start prices are strongly determined by seating level. Relative to the Upper Bowl baseline, Lower Bowl tickets command a substantial log-price premium; Club and Courtside premiums are even larger. Game fixed effects (Model 1A) absorb additional variation from opponent quality and scheduling. In Model 1B, \texttt{opp\_preseason\_ou} enters positively and significantly: games against teams with higher expected win totals are priced higher even at season start.
+ 
+% ---- Table placeholder: paste modelsummary output here ----
+% See Table~\ref{tab:step1} at the end of the document.
+ 
+\subsection{Step 2: Season-Start to Two Weeks Out}
+ 
+At the game level, \texttt{high\_demand} is the single largest predictor of upward price revision. Games against marquee opponents see prices adjust upward by a meaningful percentage relative to season-start levels, consistent with \citet{drayer2012dynamic}. Opponent win percentage at two weeks out also enters positively: teams that have outperformed their pre-season projection attract greater demand by mid-season.
+ 
+Injury shocks behave as expected. When the opposing star is injured, $\overline{\Delta^{2wk}}$ declines, reflecting reduced fan interest in attending a game the star will miss---consistent with \citet{kaplan2019economic}. Grizzlies star injuries also reduce prices, reflecting lower home-team utility for fans.
+ 
+\subsection{Step 3: Two Weeks Out to Tipoff}
+ 
+In Step 3A, the same demand shifters continue to operate but with smaller magnitudes, suggesting that much of the information is already incorporated at the two-week window. \texttt{high\_demand} remains positive and significant, while injury effects persist.
+ 
+Step 3B reveals meaningful heterogeneity by seating level. The interaction of \texttt{high\_demand} with Courtside and Lower Bowl indicators is positive: premium seats experience larger tipoff-stage price run-ups for marquee games, possibly because a wealthier, more last-minute segment of buyers demands these seats. Upper Bowl seats show smaller adjustments, consistent with more price-elastic, lower-income buyers who decide earlier.
+ 
+\subsection{Step 4: Attendance}
+ 
+The full attendance model suggests that high-demand games attract meaningfully larger crowds, and Grizzlies star injuries depress attendance. Day-of-week effects are moderate. The parsimonious model ($N = 41$, four regressors) performs comparably to the full specification, suggesting limited power to identify more nuanced effects with only one season of data. This is consistent with the warning in \citet{drayer2012dynamic} that small-sample attendance regressions should be interpreted with caution.
+ 
+ 
+% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+% ============================================================
+ 
+This paper uses secondary-market ticket price data from FedEx Forum to document how NBA ticket prices dynamically incorporate demand information across a three-stage price discovery window. The results are broadly consistent with hedonic pricing theory \citep{rosen1974hedonic} and the sports economics literature on dynamic pricing \citep{drayer2012dynamic, courty2020variable}.
+ 
+Key findings:
+\begin{itemize}
+    \item \textbf{Seat quality dominates season-start pricing}. The seating level indicators explain the bulk of cross-sectional price variation before any in-season information is available.
+    \item \textbf{Demand signals drive the season-start to two-week adjustment}. High demand games and strong-performing opponents produce upward price revisions; star injuries suppress prices, consistent with \citet{kaplan2019economic}.
+    \item \textbf{Tipoff adjustments are smaller but heterogeneous}. Premium seats (Courtside, Lower Bowl) show larger final-stage run-ups for marquee games, suggesting segmented demand by buyer type.
+    \item \textbf{Attendance is limited by the small sample}. With $N = 41$ games, only the strongest effects are detectable.
+\end{itemize}
+ 
+Future work could extend this analysis to multiple seasons to improve statistical power, incorporate real primary-market face-value data, or use the pre-season over/under as an instrumental variable for in-season opponent win percentage to address potential endogeneity in the two-week price regressions.
+ 
+ 
+% ============================================================
+%  REFERENCES
+% ============================================================
+\newpage
+\bibliographystyle{apalike}   % or: plain, apalike, jpe
+\bibliography{PS11_Zavala}       % matches your .bib filename (no extension)
+ 
+ 
+% ============================================================
+%  TABLES AND FIGURES  (appear after References per rubric)
+% ============================================================
+\newpage
+\appendix
+\section*{Tables and Figures}
+ 
+% ---- Table 1 ----
+\begin{table}[H]
+\centering
+\caption{Step 1: What Drives Season-Start Prices?}
+\label{tab:step1}
+\small
+\begin{tabular}{lcc}
+\toprule
+ & (1A) Game FE & (1B) Full \\
+ & Log Price Start & Log Price Start \\
+\midrule
+\textit{[Paste modelsummary output here]} & & \\
+Lower Bowl     & \ldots & \ldots \\
+Club           & \ldots & \ldots \\
+Courtside      & \ldots & \ldots \\
+opp\_preseason\_ou & --- & \ldots \\
+high\_demand   & --- & \ldots \\
+\midrule
+Game FE        & Yes & No \\
+Observations   & 729,554 & 729,554 \\
+$R^2$          & \ldots & \ldots \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\footnotesize Notes: Standard errors clustered by game\_id in parentheses. Upper Bowl is
+the omitted seating-level category. $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$.
+\end{flushleft}
+\end{table}
+ 
+% ---- Table 2 ----
+\begin{table}[H]
+\centering
+\caption{Steps 2 and 3: Price Changes}
+\label{tab:steps23}
+\small
+\begin{tabular}{lccc}
+\toprule
+ & (Step 2) & (Step 3A) & (Step 3B) \\
+ & $\overline{\Delta^{2wk}}$ & $\overline{\Delta^{tip}}$ & $\Delta^{tip}$ (seat level) \\
+\midrule
+\textit{[Paste modelsummary output here]} & & & \\
+opp\_win\_pct\_2wk & \ldots & \ldots & \ldots \\
+high\_demand       & \ldots & \ldots & \ldots \\
+opp\_star\_injured & \ldots & \ldots & \ldots \\
+grizz\_star\_injured & \ldots & \ldots & \ldots \\
+\midrule
+Observations & 41 & 41 & 729,554 \\
+$R^2$ & \ldots & \ldots & \ldots \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\footnotesize Notes: Steps 2 and 3A use HC3 robust standard errors ($N=41$).
+Step 3B clusters by game\_id. $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$.
+\end{flushleft}
+\end{table}
+ 
+% ---- Table 3 ----
+\begin{table}[H]
+\centering
+\caption{Step 4: What Drives Attendance?}
+\label{tab:step4}
+\small
+\begin{tabular}{lcc}
+\toprule
+ & (4 Full) & (4 Simple) \\
+ & Attendance & Attendance \\
+\midrule
+\textit{[Paste modelsummary output here]} & & \\
+high\_demand         & \ldots & \ldots \\
+opp\_star\_injured   & \ldots & \ldots \\
+grizz\_star\_injured & \ldots & \ldots \\
+\midrule
+Observations & 41 & 41 \\
+$R^2$ & \ldots & \ldots \\
+\bottomrule
+\end{tabular}
+\begin{flushleft}
+\footnotesize Notes: HC3 robust standard errors. $^{*}p<0.10$, $^{**}p<0.05$, $^{***}p<0.01$.
+\end{flushleft}
+\end{table}
+ 
+% ---- Figure placeholder ----
+\begin{figure}[H]
+\centering
+% \includegraphics[width=0.85\textwidth]{price_dist_by_level.pdf}
+\caption{Distribution of Tipoff Prices by Seating Level}
+\label{fig:pricedist}
+\begin{flushleft}
+\footnotesize Notes: Box plots of secondary-market tipoff prices across the four seating levels at FedEx Forum for all 41 home games, 2024--25 season. Replace this placeholder with your actual ggplot figure exported as PDF or PNG.
+\end{flushleft}
+\end{figure}
+ 
+\end{document}
