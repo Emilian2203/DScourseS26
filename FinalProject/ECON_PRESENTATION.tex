@@ -1,0 +1,330 @@
+\documentclass{beamer}
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Packages
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{multicol}
+
+% Title info
+\title[Dynamic Ticket Pricing]{Dynamic Ticket Pricing at FedEx Forum}
+\subtitle{Evidence from the 2024--25 Memphis Grizzlies Season}
+\author{Emilian Zavala Berguerand}
+\institute{University of Oklahoma \\ ECON 5253}
+\date{May 5, 2026}
+
+\begin{document}
+
+% ── TITLE SLIDE ──
+\begin{frame}
+\titlepage
+\end{frame}
+
+% ── SLIDE 1: INTRODUCTION ──
+\begin{frame}{Introduction: Why NBA Ticket Pricing?}
+
+\textbf{Problem: Pricing a Differentiated, Perishable Product}
+
+\vspace{0.3cm}
+\textbf{Dynamic Pricing in Sports:}
+\begin{itemize}
+    \item \textbf{Definition:} Demand-based pricing strategy
+    \item Widely used in industries such as airlines, hospitality, and sports
+    \item Objective: Align prices with consumer willingness to pay (Kopalle et al., 2023)
+    \item Common demand signals include:
+    \begin{itemize}
+        \item Opponent quality and team performance
+        \item Injuries to star players
+        \item Time remaining until game
+    \end{itemize}
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{This Paper:} Four research questions across 729,554 seat--game observations at FedEx Forum
+
+\end{frame}
+
+% ── SLIDE 2: DATA ──
+\begin{frame}{Data: FedEx Forum, 2024--25 Season}
+
+\textbf{Dataset Overview:}
+\begin{itemize}
+    \item \textbf{729,554 observations} — every seat $\times$ every game
+    \item \textbf{41 home games}, October 27, 2024 -- March 24, 2025
+    \item \textbf{17,794 seats} across 79 sections
+    \item Prices observed at \textbf{three time points}: season-start, two weeks out, tipoff
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Seating Levels:}
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+Level & Seats & Median Tipoff Price \\
+\midrule
+Courtside & 246 & \$1,460 \\
+Lower Bowl & 7,843 & \$182 \\
+Club & 2,050 & \$256 \\
+Upper Bowl & 7,655 & \$51 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\vspace{0.2cm}
+\textbf{Key game-level variables:} opponent win \%, Vegas O/U, high-demand flag, injury indicators
+
+\end{frame}
+
+
+% Data Example
+\begin{frame}{Data: Variable Overview}
+\vspace{-0.3em}
+\begin{columns}[T]
+
+%--- Left column: variable list ---%
+\column{0.45\textwidth}
+\scriptsize
+\begin{tabular}{rll}
+\toprule
+\textbf{\#} & \textbf{Name} & \textbf{Varies by} \\
+\midrule
+1  & \texttt{section}              & seat \\
+2  & \texttt{row}                  & seat \\
+3  & \texttt{seat}                 & seat \\
+4  & \texttt{level}                & seat \\
+5  & \texttt{game\_id}             & game \\
+6  & \texttt{event\_date}          & game \\
+7  & \texttt{day\_of\_week}        & game \\
+8  & \texttt{month}                & game \\
+9  & \texttt{opponent}             & game \\
+10 & \texttt{opp\_preseason\_ou}   & game \\
+11 & \texttt{opp\_win\_pct\_2wk}   & game \\
+12 & \texttt{high\_demand}         & game \\
+13 & \texttt{is\_rivalry}          & game \\
+14 & \texttt{opp\_star\_injured}   & game \\
+15 & \texttt{grizz\_star\_injured} & game \\
+16 & \texttt{price\_season\_start} & seat $\!\times\!$ game \\
+17 & \texttt{price\_2wk\_before}   & seat $\!\times\!$ game \\
+18 & \texttt{price\_tipoff}        & seat $\!\times\!$ game \\
+19 & \texttt{attendance}           & game \\
+\bottomrule
+\end{tabular}
+
+%--- Right column: sample data ---%
+\column{0.52\textwidth}
+\scriptsize
+\textbf{Sample rows (Section 101, Game 1):}
+
+\vspace{0.2em}
+\begin{tabular}{ccccc}
+\toprule
+\textbf{Row} & \textbf{Seat} & \textbf{P\textsubscript{start}} & \textbf{P\textsubscript{2wk}} & \textbf{P\textsubscript{tipoff}} \\
+\midrule
+A & 1  & \$155 & \$185 & \$212 \\
+A & 2  & \$144 & \$161 & \$164 \\
+A & 3  & \$158 & \$182 & \$181 \\
+A & 4  & \$140 & \$172 & \$174 \\
+A & 5  & \$150 & \$175 & \$192 \\
+A & 6  & \$144 & \$191 & \$197 \\
+A & 7  & \$139 & \$163 & \$164 \\
+A & 8  & \$163 & \$155 & \$156 \\
+A & 9  & \$166 & \$214 & \$211 \\
+A & 10 & \$144 & \$172 & \$173 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.4em}
+\begin{itemize}
+  \setlength\itemsep{0.15em}
+  \item Game 1: vs.\ Orlando Magic, Oct 27 2024
+  \item \textbf{Opponent:} O/U = 38.5, Win\% = 0.512
+  \item All logical flags \texttt{FALSE} for this game
+  \item Attendance: 14,527
+\end{itemize}
+
+\end{columns}
+
+\end{frame}
+
+
+% ── SLIDE 3: METHODS ──
+\begin{frame}{Methods: Log-Linear Dynamic Pricing Model}
+
+\textbf{Core idea:} Log-differences cancel seat fixed effects:
+$$\Delta^{2wk}_i = \log(P^{2wk}_i) - \log(P^{start}_i)$$
+
+\vspace{0.3cm}
+\textbf{Four estimation steps:}
+
+\begin{enumerate}
+    \item \textbf{Step 1 — Season-Start Price:} Regress $\log(P^{start})$ on seat level + game controls. Standard errors clustered by game.
+
+    \item \textbf{Step 2 — Start $\to$ Two Weeks Out:} Regress $\Delta^{2wk}$ on game-level demand shifters (N=41, HC3 robust SEs).
+
+    \item \textbf{Step 3 — Two Weeks Out $\to$ Tipoff:} Regress $\Delta^{tip}$ on game-level variables + seat-level interactions.
+
+    \item \textbf{Step 4 — Attendance:} Linear model on 41-game dataset with robust SEs.
+\end{enumerate}
+
+\vspace{0.2cm}
+\small Software: R (\texttt{fixest}, \texttt{lmtest}, \texttt{sandwich}, \texttt{modelsummary})
+
+\end{frame}
+
+% ── SLIDE 4: FINDINGS ──
+\begin{frame}{Findings: Key Results Across All Four Steps}
+
+\begin{columns}
+
+\column{0.5\textwidth}
+\textbf{Step 1 — Season-Start}
+\begin{itemize}
+    \item Seat level explains \textbf{95\%} of price variation (R$^2$ = 0.95)
+    \item Courtside: \textbf{+2,733\%} vs Upper Bowl
+    \item Each opponent win $\Rightarrow$ \textbf{+0.18\%} price
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Step 3 — To Tipoff}
+\begin{itemize}
+    \item Effects \textbf{smaller} — market already adjusted
+    \item Rivalry premium \textbf{fully absorbed} by 2 weeks out
+    \item Lower Bowl: extra \textbf{+8\%} on high demand games
+\end{itemize}
+
+\column{0.5\textwidth}
+\textbf{Step 2 — To Two Weeks Out}
+\begin{itemize}
+    \item High demand: \textbf{+22\%} price increase
+    \item Rival games: \textbf{+232\%} appreciation
+    \item Opp. star injured: \textbf{$-$18\%}
+    \item Grizz star injured: \textbf{$-$78\%}
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Step 4 — Attendance}
+\begin{itemize}
+    \item High demand: \textbf{+2,405 fans}
+    \item Opp. star injured: \textbf{$-$1,484 fans}
+    \item Grizz star injured: \textbf{$-$794 fans}
+    \item Saturday/Sunday: \textbf{+830--898 fans}
+\end{itemize}
+
+\end{columns}
+
+\end{frame}
+
+% Slide: Results Example
+\begin{frame}{Results: What Drives Season-Start Prices?}
+
+\vspace{-0.5em}
+\begin{center}
+\tiny
+\textit{Table 1: Step 1 --- What Drives Season-Start Prices?}
+
+\vspace{0.2em}
+\begin{tabular}{lcc}
+\toprule
+ & \textbf{(1A) Game FE} & \textbf{(1B) Full} \\
+ & Log Price Start & Log Price Start \\
+\midrule
+Lower Bowl       & 1.260$^{***}$ & 1.260$^{***}$ \\
+                 & (0.000)       & (0.000)       \\
+Club             & 1.602$^{***}$ & 1.602$^{***}$ \\
+                 & (0.000)       & (0.000)       \\
+Courtside        & 3.345$^{***}$ & 3.345$^{***}$ \\
+                 & (0.000)       & (0.000)       \\
+Intercept        &               & 3.728$^{***}$ \\
+                 &               & (0.000)       \\
+\texttt{opp\_preseason\_ou} &   & 0.002$^{***}$ \\
+                 &               & (0.000)       \\
+\texttt{high\_demand}       &   & 0.000         \\
+                 &               & (0.000)       \\
+\texttt{is\_rivalry}        &   & $-$0.000      \\
+                 &               & (0.000)       \\
+\midrule
+Day of Week FE   & No  & Yes \\
+Month FE         & No  & Yes \\
+Game FE          & Yes & No  \\
+\midrule
+Observations     & 729,554 & 729,554 \\
+R$^2$            & 0.950   & 0.950   \\
+Adj.\ R$^2$      & 0.950   & 0.950   \\
+RMSE             & 0.17    & 0.17    \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.2em}
+\parbox{0.85\textwidth}{\tiny
+Notes: Standard errors clustered by \texttt{game\_id} in parentheses. Upper Bowl is omitted category. $\dagger\ p < 0.1$, $*\ p < 0.05$, $**\ p < 0.01$, $***\ p < 0.001$.}
+\end{center}
+
+\end{frame}
+
+
+% ── SLIDE 5: CONCLUSIONS ──
+\begin{frame}{What Did We Learn? Why Does This Matter?}
+
+\textbf{Key Takeaways:}
+\begin{itemize}
+  \item \textbf{Seat quality dominates} season-start prices (hedonic pricing)
+  \item \textbf{Market is efficient} — most info priced in by two weeks out
+  \item \textbf{Star injuries suppress prices} — Grizzlies $-78\%$ vs opponent $-18\%$
+  \item \textbf{Premium seats react differently} to marquee games
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Why It Matters:}
+\begin{itemize}
+  \item Helps teams \textbf{optimize revenue} via smarter dynamic pricing
+  \item Quantifies the \textbf{economic value} of star players
+  \item Shows how secondary markets \textbf{efficiently incorporate information}
+\end{itemize}
+
+\vspace{0.5em}
+\textbf{Future Work:} multiple seasons, primary market data, IV estimation
+
+\end{frame}
+
+c
+% ── REFERENCES ──
+\begin{frame}{References}
+\tiny
+\begin{itemize}
+  \item Courty, P., \& Davey, L. (2020). The impact of variable pricing, dynamic pricing, and sponsored secondary markets in major league baseball. \textit{Journal of Sports Economics}, 21(5), 528--554.
+
+  \item Drayer, J., Shapiro, S. L., \& Lee, S. (2012). Dynamic ticket pricing in sport: An agenda for research and practice. \textit{Sport Marketing Quarterly}, 21(3), 184--194.
+
+  \item FedExForum (2024). About FedExForum. \url{https://www.fedexforum.com/arena-info/about-fedexforum}. Accessed April 2026.
+
+  \item Kaplan, S., Ramamoorthy, V., Gupte, C., Sagar, A., Wilbur, J., \& Zilberman, D. (2021). The economic impact of NBA superstars: Evidence from missed games using ticket microdata from a secondary marketplace. \textit{Economic Inquiry}.
+
+  \item Memphis Grizzlies (2024). Memphis Grizzlies official NBA website. \url{https://www.nba.com/grizzlies}. Accessed April 2026.
+
+  \item National Basketball Association (2025). NBA official website. \url{https://www.nba.com}. Accessed April 2026.
+
+  \item Patel, R. (2018). Indices for dynamic pricing in the event ticketing industry. \textit{SSRN Working Paper}. Available at SSRN: https://ssrn.com/abstract=3149231.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{References (cont.)}
+\tiny
+\begin{itemize}
+  \item Paul, R. J., \& Weinbach, A. P. (2013). Determinants of dynamic pricing premiums in major league baseball. \textit{Sport Marketing Quarterly}, 22(3), 152--165.
+
+  \item R Core Team (2024). \textit{R: A Language and Environment for Statistical Computing}. R Foundation for Statistical Computing, Vienna, Austria.
+
+  \item Rascher, D. A., McEvoy, C. D., Nagel, M. S., \& Brown, M. T. (2007). Variable ticket pricing in major league baseball. \textit{Journal of Sport Management}, 21(3), 407--437.
+
+  \item Rosen, S. (1974). Hedonic prices and implicit markets: Product differentiation in pure competition. \textit{Journal of Political Economy}, 82(1), 34--55.
+
+  \item Shapiro, S. L., \& Drayer, J. (2012). A new age of demand-based pricing: An examination of dynamic ticket pricing and secondary market prices in major league baseball. \textit{Journal of Sport Management}, 26(6), 532--546.
+
+  \item Wanghan, A., \& Angomst, J. (2023). What variables predict ticket prices of NBA franchises? A review. \textit{Journal of Student Research}, 12(4).
+\end{itemize}
+\end{frame}
+
+
+\end{document}
