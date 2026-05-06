@@ -1,0 +1,113 @@
+# Dynamic Ticket Pricing at FedEx Forum
+### Evidence from the 2024–25 Memphis Grizzlies Season
+**Author:** Emilian Zavala Berguerand  
+**Course:** ECON 5253 — University of Oklahoma  
+**Date:** May 2026
+
+---
+
+## Project Overview
+
+This project investigates how secondary-market ticket prices for Memphis Grizzlies home 
+games adjust over time in response to demand information. Using a synthetic but realistic
+dataset of 729,554 seat–game observations across all 41 home games at FedEx Forum
+during the 2024–25 NBA regular season, I estimate a four-step log-linear pricing model
+examining: (1) what drives season-start prices, (2) price changes from season-start to
+two weeks out, (3) price changes from two weeks out to tipoff, and (4) attendance drivers.
+
+---
+
+## File and Folder Structure
+
+```
+/
+├── README.md                        ← You are here
+├── Fedex_forum_code.R               ← Single R script: all cleaning, analysis, and figures
+├── fedex_forum_tickets(in).csv      ← Input dataset (synthetic, 729,554 rows)
+└── paper/
+    └── FinalProject_Zavala.tex              ← LaTeX source for the written report
+    └── FinalProject_Zavala.pdf              ← Compiled PDF of the written report
+```
+
+---
+
+## Software Requirements
+
+- **R** (version 4.3 or higher recommended)
+- **RStudio** (recommended for running the script interactively)
+
+### Required R Packages
+
+Install these once by running the following in your R console:
+
+```r
+install.packages("tidyverse")
+install.packages("fixest")
+install.packages("modelsummary")
+install.packages("lmtest")
+install.packages("sandwich")
+install.packages("ggplot2")   # included in tidyverse
+```
+
+---
+
+## How to Reproduce All Results
+
+All analysis is contained in a **single R script**: `Fedex_forum_code.R`  
+Run it top-to-bottom in RStudio. Here is what each section does:
+
+### Step 1 — Install and Load Packages (Lines 1–13)
+Installs (if needed) and loads all required packages.
+
+### Step 2 — Load the Dataset (Line 16)
+Reads in `fedex_forum_tickets(in).csv` from your working directory.  
+> ⚠️ Make sure this CSV file is in the **same folder** as the R script, or set your working directory to that folder using `setwd()` in RStudio (Session → Set Working Directory → To Source File Location).
+
+### Step 3 — Clean and Prepare Data (Lines 25–47)
+- Converts logical flags to 0/1 integers
+- Creates factor variables for seating level, day of week, and month
+- Log-transforms all three price variables
+- Constructs log price changes (`delta_2wk`, `delta_tip`)
+
+### Step 4 — Collapse to Game Level (Lines 65–88)
+Creates `game_df` (41 rows, one per game) and `game_delta` (41 rows with mean price changes).
+
+### Step 5 — Run All Regressions (Lines 91–150)
+Estimates all models reported in the paper:
+- **Step 1A:** `feols()` — log season-start price on seat level with game fixed effects → **Table 1, Column 1**
+- **Step 1B:** `feols()` — log season-start price with explicit game-level variables → **Table 1, Column 2**
+- **Step 2:** `lm()` + HC3 robust SEs — season-start to two-week price change → **Table 2, Column 1**
+- **Step 3A:** `lm()` + HC3 robust SEs — two-week to tipoff price change → **Table 2, Column 2**
+- **Step 3B:** `feols()` with interaction terms — tipoff price change by seat level → **Table 2, Column 3**
+- **Step 4 Full & Simple:** `lm()` + HC3 robust SEs — attendance models → **Table 3**
+
+### Step 6 — Generate Output Tables (Lines 152–184)
+`modelsummary()` prints formatted regression tables to the console and in markdown format.  
+These were used to produce Tables 1–3 in the written report.
+
+### Step 7 — Generate Figure 1 (Lines 188–202)
+Produces the boxplot of tipoff prices by seating level and saves it as:
+- `price_dist_by_level.pdf`
+- `price_dist_by_level.png`
+
+---
+
+## Data Notes
+
+The input dataset (`fedex_forum_tickets(in).csv`) is **synthetic but realistic** — it was
+constructed to reflect the actual seating structure of FedEx Forum (17,794 seats across
+four levels) and realistic secondary-market price dynamics for the 2024–25 Memphis
+Grizzlies season. No external data download is required; the CSV should be included
+in this repository alongside the R script.
+
+---
+
+## Replicating the Written Report
+
+The written report is compiled in **LaTeX** using Overleaf.
+
+1. Open `FinalProject_Zavala.tex` in [Overleaf](https://www.overleaf.com) (or a local LaTeX editor)
+2. Upload `price_dist_by_level.pdf` or `.png` to the same Overleaf project if regenerating figures
+3. Click **Recompile** to produce the final PDF
+
+---
