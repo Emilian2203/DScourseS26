@@ -95,11 +95,10 @@ Produces the boxplot of tipoff prices by seating level and saves it as:
 
 ## Data Notes
 
-The input dataset (`fedex_forum_tickets(in).csv`) is **synthetic but realistic** — it was
-constructed to reflect the actual seating structure of FedEx Forum (17,794 seats across
+The input dataset (`fedex_forum_tickets(in).csv`) is **synthetic but realistic**. It was
+created by Dr. Ransom to reflect the actual seating structure of FedEx Forum (17,794 seats across
 four levels) and realistic secondary-market price dynamics for the 2024–25 Memphis
-Grizzlies season. No external data download is required; the CSV should be included
-in this repository alongside the R script.
+Grizzlies season. The file exceeds GitHub's 25MB limit and is therefore not hosted here. 
 
 ---
 
@@ -107,8 +106,8 @@ in this repository alongside the R script.
 
 The written report is compiled in **LaTeX** using Overleaf.
 
-1. Open `FinalPaper_Zavala.tex` in [Overleaf](https://www.overleaf.com) (or a local LaTeX editor)
-2. Upload `price_dist_by_level.pdf` or `.png` to the same Overleaf project if regenerating figures
+1. Open `FinalProject_Zavala.tex` in [Overleaf](https://www.overleaf.com) (or a local LaTeX editor)
+2. Upload `price_dist_by_level.pdf` to the same Overleaf project if regenerating figures
 3. Click **Recompile** to produce the final PDF
 
 ---
