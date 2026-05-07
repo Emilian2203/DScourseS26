@@ -62,7 +62,8 @@ Installs (if needed) and loads all required packages.
 
 ### Step 2 — Load the Dataset (Line 16)
 Reads in `fedex_forum_tickets(in).csv` from your working directory.  
-> ⚠️ Make sure this CSV file is in the **same folder** as the R script, or set your working directory to that folder using `setwd()` in RStudio (Session → Set Working Directory → To Source File Location).
+> **Note:** This dataset was provided by Dr. Ransom for ECON 5253 and exceeds 
+> GitHub's 25MB file size limit, so it is not hosted in this repository. 
 
 ### Step 3 — Clean and Prepare Data (Lines 25–47)
 - Converts logical flags to 0/1 integers
